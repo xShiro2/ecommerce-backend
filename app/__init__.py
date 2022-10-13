@@ -14,11 +14,14 @@ login_manager.init_app(app)
 if __name__ == '__main__':
     app.run(host='localhost', port=5000)
 
-from app import auth, models
+from app.Routes import routes
+from app.Models import models
 
 @app.before_first_request
-def create_table():
+def create_tables():
+    #db.drop_all()
     db.create_all()
+    db.session.commit()
 
 @login_manager.user_loader
 def load_user(user_id):
