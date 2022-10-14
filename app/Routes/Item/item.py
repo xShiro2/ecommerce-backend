@@ -23,6 +23,7 @@ def item():
                 name=data['name'],
                 description=data['description'],
                 price = data['price'],
+                stocks = data['stock']
             )
 
             shopItem = ShopItem(

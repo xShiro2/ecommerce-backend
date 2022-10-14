@@ -30,7 +30,7 @@ def signup():
                 address = address,
                 age = age,
                 gender = gender,
-                user_type = user_type
+                user_type = user_type,
             )
 
             result = user.create()
@@ -47,6 +47,7 @@ def signup():
             )
 
         except Exception as e:
+            print(e)
             return Response(
                 status=500,
                 message="internal error"
