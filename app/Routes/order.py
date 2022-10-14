@@ -2,7 +2,7 @@ from app import app, db
 from flask_login import login_required, current_user
 from flask import request
 from app.Components.response import Response
-from app.Models.models import Order, Item
+from app.models import Order, Item
 
 @app.route('/api/v1/user/cart/checkout', methods=['POST'])
 @login_required

@@ -1,7 +1,7 @@
 from flask import request
-from flask_login import login_user, current_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user
 from app import app
-from app.Models.User.user import User
+from app.models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.Components.response import Response
 
@@ -47,7 +47,6 @@ def signup():
             )
 
         except Exception as e:
-            print(e)
             return Response(
                 status=500,
                 message="internal error"

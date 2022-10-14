@@ -1,6 +1,6 @@
 from flask import request
 from app import app, db
-from app.Models.models import Shop
+from app.models import Shop
 from flask_login import login_required, current_user
 from app.Components.response import Response
 

@@ -14,8 +14,8 @@ login_manager.init_app(app)
 if __name__ == '__main__':
     app.run(host='localhost', port=5000)
 
-from app.Routes import routes
-from app.Models import models
+from app import routes
+from app import models
 
 @app.before_first_request
 def create_tables():
