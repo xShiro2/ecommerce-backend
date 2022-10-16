@@ -10,10 +10,10 @@ class Item(db.Model):
     name = db.Column(db.String(20), nullable=False)
     description = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
-    stocks = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
     
-    date_created = db.Column(db.DateTime, server_default=func.now())
-    date_updated = db.Column(db.DateTime, onupdate=func.now())
+    dateCreated = db.Column(db.TIMESTAMP, server_default=func.now())
+    dateUpdated = db.Column(db.TIMESTAMP, onupdate=func.now())
 
     def updateStock(self, quantity: int):
         self.stocks = self.stocks - quantity

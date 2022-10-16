@@ -11,8 +11,8 @@ class Shop(db.Model):
     location = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text)
 
-    date_created = db.Column(db.DateTime, server_default=func.now())
-    date_updated = db.Column(db.DateTime, onupdate=func.now())
+    dateCreated = db.Column(db.TIMESTAMP, server_default=func.now())
+    dateUpdated = db.Column(db.TIMESTAMP, onupdate=func.now())
 
     def create(self):
         db.session.add(self)

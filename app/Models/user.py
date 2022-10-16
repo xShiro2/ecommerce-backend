@@ -16,8 +16,8 @@ class User(UserMixin, db.Model):
     gender = db.Column(db.String(6), nullable=False)
     user_type = db.Column(db.String(6), nullable=False)
     
-    date_created = db.Column(db.DateTime, server_default=func.now())
-    date_updated = db.Column(db.DateTime, onupdate=func.now())
+    dateCreated = db.Column(db.TIMESTAMP, server_default=func.now())
+    dateUpdated = db.Column(db.TIMESTAMP, onupdate=func.now())
     
     def create(self):
         if self.query.filter_by(email= self.email).first():

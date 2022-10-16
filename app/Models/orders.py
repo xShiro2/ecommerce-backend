@@ -8,7 +8,8 @@ class Order(db.Model):
     buyer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
     quantity = db.Column(db.Integer, nullable=False)
-    date = db.Column(db.DateTime, server_default=func.now())
+
+    dateCreated = db.Column(db.TIMESTAMP, server_default=func.now())
 
     def create(self):
         db.session.add(self)
