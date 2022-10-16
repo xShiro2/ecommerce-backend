@@ -31,7 +31,7 @@ def order():
         )
 
         order.create()
-        item.updateStock(quantity)
+        item.updateQuantity(quantity)
         
         return Response(
             status=200

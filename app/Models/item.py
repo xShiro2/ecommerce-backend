@@ -12,11 +12,14 @@ class Item(db.Model):
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    subcategory_id = db.Column(db.Integer, db.ForeignKey('subcategory.id'))
+    
     dateCreated = db.Column(db.TIMESTAMP, server_default=func.now())
     dateUpdated = db.Column(db.TIMESTAMP, onupdate=func.now())
 
-    def updateStock(self, quantity: int):
-        self.stocks = self.stocks - quantity
+    def updateQuantity(self, quantity: int):
+        self.quantity = self.quantity - quantity
         db.session.commit()
     
     def create(self):
