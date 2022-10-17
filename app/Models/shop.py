@@ -16,7 +16,7 @@ class Shop(db.Model):
 
     def create(self):
         db.session.add(self)
-        db.session.commit()
+        db.session.commit() 
 
     def to_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}

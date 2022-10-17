@@ -1,6 +1,6 @@
 from flask import request
 from app import app, db
-from app.models import Shop
+from app.models import Shop, Item, Category, SubCategory
 from flask_login import login_required, current_user
 from app.Components.response import Response
 
@@ -44,11 +44,21 @@ def shop():
             )
     
     if request.method == 'GET':
-        shop = Shop.query.filter_by(seller_id=current_user.id).first()
+        shop = Shop.query.filter_by(seller_id=current_user.id).first_or_404()
+        shop_items = Item.query.join(Shop).filter(Shop.seller_id==current_user.id).all()
+        
+        item_list = {}
+        for i, item in enumerate(shop_items):
+            item_list[i] = item.to_dict()
+
+        categories = Category.query.filter_by(shop_id=shop.id).all()
+        subcategories = SubCategory.query.filter_by(shop_id=shop.id).all()
+
         return Response(
             status = 200,
             data =   {
                 "shop": shop.to_dict(),
+                "items" : item_list,
             }
         )
     

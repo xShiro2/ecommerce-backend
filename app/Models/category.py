@@ -6,13 +6,17 @@ class Category(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    shop_id = db.Column(db.Integer, db.ForeignKey('shop.id'))
     
     dateCreated = db.Column(db.TIMESTAMP, server_default=func.now())
     dateUpdated = db.Column(db.TIMESTAMP, onupdate=func.now())
 
     def create(self):
         db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
         db.session.commit()
 
     def to_dict(self):

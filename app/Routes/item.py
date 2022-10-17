@@ -17,9 +17,9 @@ def item():
     if request.method == 'POST':
         data = request.get_json()
 
-        shop = Shop.query.filter_by(seller_id=current_user.id).first()
-        category = Category.query.filter_by(user_id=current_user.id, name=data['category']).first()
-        subcategory = SubCategory.query.filter_by(user_id=current_user.id, name=data['subcategory']).first()
+        shop = Shop.query.filter_by(seller_id=current_user.id).first_or_404()
+        category = Category.query.filter_by(shop_id=shop.id, name=data['category']).first_or_404()
+        subcategory = SubCategory.query.filter_by(shop_id=shop.id, name=data['subcategory']).first_or_404()
 
         if shop:
             item = Item(
