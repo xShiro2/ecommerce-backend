@@ -1,11 +1,11 @@
 from flask import request
 from app import app
-from app.models import Shop, ShopItem, Item, Category, SubCategory
+from app.models import Shop, Item, Category, SubCategory
 from flask_login import login_required, current_user
 from app.Components.response import Response
 
 
-@app.route('/api/v1/shop/item', methods=['POST', 'GET', 'DELETE'])
+@app.route('/api/v1/shop/item', methods=['POST',  'DELETE'])
 @login_required
 def item():
     if current_user.user_type == 'Buyer':
@@ -23,6 +23,7 @@ def item():
 
         if shop:
             item = Item(
+                shop_id = shop.id,
                 name=data['name'],
                 description=data['description'],
                 price = data['price'],
@@ -31,35 +32,20 @@ def item():
                 subcategory_id = subcategory.id
             )
 
-            shopItem = ShopItem(
-                shop_id = shop.id,
-                item=item
-            )
-            shopItem.create()
             item.create()
 
             return Response(
                 status=201,
                 message="success",
             )
-    if request.method == 'GET':
-        shop = Shop.query.filter_by(seller_id=current_user.id).first()
-        if shop:
-            items = getItems(shop.id)
+    
+    if request.method == 'DELETE':
+        data = request.get_json()
 
-            return Response(
-                status = 200,
-                data = {
-                    "items": items
-                }
-            )
+        item = Item.query.get_or_404(data['item_id'])
 
-def getItems(shop_id):
-    shopItems = ShopItem.query.filter_by(shop_id = shop_id).all()
-    item_ids = [item.item_id for item in shopItems]
-    items = {}
+        item.delete()
 
-    for i, id in enumerate(item_ids):
-        item = Item.query.get(id)
-        items[i] = item.to_dict()
-    return items
+        return Response(
+            status=200
+        )
