@@ -23,6 +23,19 @@ def create_tables():
     db.create_all()
     db.session.commit()
 
+    # create sample gender
+    gender = [
+        "Male",
+        "Female",
+        "Boy",
+        "Girl",
+        "Unisex"
+    ]
+
+    for i in gender:
+        gen = models.Gender(name=i)
+        gen.create()
+
 @login_manager.user_loader
 def load_user(user_id):
     return models.User.query.get(int(user_id))

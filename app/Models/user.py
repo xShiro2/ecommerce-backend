@@ -1,8 +1,9 @@
 from app import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
+from app.Components import model
 
-class User(UserMixin, db.Model):
+class User(UserMixin, db.Model, model.Component):
     __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -26,9 +27,6 @@ class User(UserMixin, db.Model):
             db.session.add(self)
             db.session.commit()
             return True
-    
-    def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 

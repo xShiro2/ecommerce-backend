@@ -1,6 +1,6 @@
 from flask import request
 from app import app
-from app.models import Shop, Item, Category, SubCategory
+from app.models import Shop, Item, Size, Quantity, Gender, Category
 from flask_login import login_required, current_user
 from app.Components.response import Response
 
@@ -18,21 +18,30 @@ def item():
         data = request.get_json()
 
         shop = Shop.query.filter_by(seller_id=current_user.id).first_or_404()
-        category = Category.query.filter_by(shop_id=shop.id, name=data['category']).first_or_404()
-        subcategory = SubCategory.query.filter_by(shop_id=shop.id, name=data['subcategory']).first_or_404()
-
+        
         if shop:
+            gender = Gender.query.filter_by(name=data['gender']).first()
+            category = Category.query.filter_by(name=data['category']).first()
             item = Item(
                 shop_id = shop.id,
                 name=data['name'],
                 description=data['description'],
                 price = data['price'],
-                quantity = data['quantity'],
-                category_id = category.id,
-                subcategory_id = subcategory.id
+
+                gender_id = gender.id,
+                category_id = category.id
             )
 
             item.create()
+
+            sizes = data['sizes']
+
+            for size in sizes.keys():
+                s = Size(item_id=item.id, value=size)
+                s.create()
+
+                quantity = Quantity(size_id=s.id, value=sizes[size])
+                quantity.create()
 
             return Response(
                 status=201,

@@ -1,6 +1,6 @@
 from flask import request
 from app import app, db
-from app.models import Shop, Item, Category, SubCategory
+from app.models import Shop, Item, Quantity, Size
 from flask_login import login_required, current_user
 from app.Components.response import Response
 
@@ -49,11 +49,16 @@ def shop():
         
         item_list = {}
         for i, item in enumerate(shop_items):
-            item_list[i] = item.to_dict()
+            sizes = Size.query.filter_by(item_id=item.id).all()
+            quantities = {}
+            for size in sizes:
+                quantities[size.value] = Quantity.query.filter_by(size_id=size.id).first().value
 
-        categories = Category.query.filter_by(shop_id=shop.id).all()
-        subcategories = SubCategory.query.filter_by(shop_id=shop.id).all()
-
+            item_list[i] = {
+                "item": item.to_dict(),
+                "size": quantities
+            }
+            
         return Response(
             status = 200,
             data =   {

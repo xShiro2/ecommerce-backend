@@ -1,5 +1,6 @@
 from app import db
 from sqlalchemy.sql import func
+from app.Components import model
 
 class Cart(db.Model):
     __tablename__ = 'cart'
@@ -11,7 +12,7 @@ class Cart(db.Model):
         db.session.add(self)
         db.session.commit()
 
-class CartItem(db.Model):
+class CartItem(db.Model, model.Component):
     __tablename__ = 'cart_item'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -21,14 +22,3 @@ class CartItem(db.Model):
 
     dateAdded = db.Column(db.TIMESTAMP, server_default=func.now())
     dateUpdated = db.Column(db.TIMESTAMP, onupdate=func.now())
-
-    def create(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
-    def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
