@@ -1,6 +1,6 @@
 from flask import request
 from app import app, db
-from app.models import Shop, Item, Quantity, Size
+from app.models import Shop, Item, Variant
 from flask_login import login_required, current_user
 from app.Components.response import Response
 
@@ -22,7 +22,7 @@ def shop():
             shop.location = data['location']
             shop.description = data['description']
             shop.seller_id = current_user.id
-            db.session.commit()
+            shop.updated()
 
             return Response(
                 status =  200,
@@ -49,20 +49,24 @@ def shop():
         
         item_list = {}
         for i, item in enumerate(shop_items):
-            sizes = Size.query.filter_by(item_id=item.id).all()
-            quantities = {}
-            for size in sizes:
-                quantities[size.value] = Quantity.query.filter_by(size_id=size.id).first().value
+            variants = Variant.query.filter_by(item_id=item.id).all()
+            variant_list = {}
+            for var in variants:
+                variant_list[var.size] = var.quantity
 
+            att = item.to_dict(exclude="shop_id")
+            att['gender'] = item.gen.name
+            att['category'] = item.cat.name
+        
             item_list[i] = {
-                "item": item.to_dict(),
-                "size": quantities
+                str(item.id) : att,
+                "variants": variant_list
             }
-            
+
         return Response(
             status = 200,
             data =   {
-                "shop": shop.to_dict(),
+                "shop": shop.to_dict(exclude='seller_id'),
                 "items" : item_list,
             }
         )

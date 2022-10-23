@@ -12,5 +12,10 @@ class Component():
         db.session.delete(self)
         db.session.commit()
 
-    def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    def to_dict(self, exclude=None):
+        dic = {}
+        for c in self.__table__.columns:
+            if c.name != exclude:
+                dic[c.name] = getattr(self, c.name)
+
+        return dic

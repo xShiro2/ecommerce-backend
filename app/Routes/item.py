@@ -1,6 +1,6 @@
 from flask import request
 from app import app
-from app.models import Shop, Item, Size, Quantity, Gender, Category
+from app.models import Shop, Item, Variant, Gender, Category
 from flask_login import login_required, current_user
 from app.Components.response import Response
 
@@ -21,27 +21,24 @@ def item():
         
         if shop:
             gender = Gender.query.filter_by(name=data['gender']).first()
-            category = Category.query.filter_by(name=data['category']).first()
+            category = Category.query.filter_by(name=data['category'], shop_id=shop.id).first()
             item = Item(
                 shop_id = shop.id,
                 name=data['name'],
                 description=data['description'],
                 price = data['price'],
 
-                gender_id = gender.id,
-                category_id = category.id
+                gender = gender.id,
+                category = category.id
             )
 
             item.create()
 
-            sizes = data['sizes']
+            variants = data['variants']
 
-            for size in sizes.keys():
-                s = Size(item_id=item.id, value=size)
-                s.create()
-
-                quantity = Quantity(size_id=s.id, value=sizes[size])
-                quantity.create()
+            for size in variants.keys():
+                var = Variant(item_id=item.id, size=size, quantity=variants[size])
+                var.create()
 
             return Response(
                 status=201,
