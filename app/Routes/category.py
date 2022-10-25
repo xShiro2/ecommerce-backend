@@ -19,11 +19,35 @@ def category():
         
         category = Category(
             shop_id = shop.id,
-            name = data['name']
+            name = data['categoryName']
         )
 
         category.create()
 
         return Response(
-            status=201,
+            data = {
+                'id': category.id,
+                'categoryName': category.name,
+                'dateCreated': category.dateCreated,
+                'dateUpdated': category.dateUpdated,
+            },
+            status=201
+        )
+    
+    if request.method == 'GET':
+        shop  = Shop.query.filter_by(seller_id=current_user.id).first()
+        categories = Category.query.filter_by(shop_id=shop.id).all()
+
+        res = []
+        for category in categories:
+            res.append({
+                'id': category.id,
+                'categoryName': category.name,
+                'dateCreated': category.dateCreated,
+                'dateUpdated': category.dateUpdated,
+            })
+        
+        return Response(
+            data=res, 
+            status=200
         )

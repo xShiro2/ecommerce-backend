@@ -10,7 +10,5 @@ def users():
         return Response(
             status = 200,
             message= "",
-            data = {
-                "user": current_user.to_dict(),
-            }
+            data = current_user.to_dict(),
         )
