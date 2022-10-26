@@ -1,7 +1,7 @@
 from flask import request
 from flask_login import login_user, login_required, logout_user
 from app import app
-from app.models import User
+from app.models import User, Shop
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.Components.response import Response
 
@@ -36,6 +36,10 @@ def signup():
             result = user.create()
 
             if result:
+                if user.user_type == 'Seller':
+                    shop = Shop(seller_id=user.id)
+                    shop.create()
+
                 return Response(
                     status=201,
                     message="sucess"
