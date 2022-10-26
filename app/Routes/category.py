@@ -17,7 +17,7 @@ def category():
         data = request.get_json()
         shop  = Shop.query.filter_by(seller_id=current_user.id).first()
 
-        if Category.query.filter_by(name = data['categoryName']).first():
+        if Category.query.filter_by(name = data['categoryName'], shop_id = shop.id).first():
             return Response(
                 status=409,
                 message="error",
