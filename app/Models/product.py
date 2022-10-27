@@ -12,8 +12,8 @@ class Product(db.Model, model.Component):
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-    gender = db.Column(db.Integer, db.ForeignKey('gender.id'))
-    category = db.Column(db.Integer, db.ForeignKey('category.id'))
+    gender = db.Column(db.Integer, db.ForeignKey('gender.id'), nullable=False)
+    category = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     
     dateCreated = db.Column(db.TIMESTAMP, server_default=func.now())
     dateUpdated = db.Column(db.TIMESTAMP, onupdate=func.now())

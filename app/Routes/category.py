@@ -3,6 +3,7 @@ from app import app, db
 from app.models import Category, Shop, Gender
 from flask_login import login_required, current_user
 from app.Components.response import Response
+from sqlalchemy import exc
 
 @login_required
 @app.route('/api/v1/shop/category', methods=['POST', 'GET'])
@@ -63,9 +64,16 @@ def category():
 def delete(id):
     if request.method == 'DELETE':
         shop = Shop.query.filter_by(user=current_user.id).first()
-        category = Category.query.get_or_404(id=id, shop=shop.id)
+        category = Category.query.filter_by(id=id, shop=shop.id).first()
         if category:
-            category.delete()
+            try:
+                category.delete()
+            except exc.IntegrityError:
+                db.session.rollback()
+                return Response(
+                    status=409,
+                    message='error'
+                )
 
             return Response(
                 status=200
