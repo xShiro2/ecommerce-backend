@@ -62,11 +62,17 @@ def category():
 @app.route('/api/v1/shop/category/<id>', methods=['DELETE'])
 def delete(id):
     if request.method == 'DELETE':
-        category = Category.query.get_or_404(id)
-        category.delete()
+        shop = Shop.query.filter_by(user=current_user.id).first()
+        category = Category.query.get_or_404(id=id, shop=shop.id)
+        if category:
+            category.delete()
+
+            return Response(
+                status=200
+            )
 
         return Response(
-            status=200
+            status=404
         )
 
 @login_required

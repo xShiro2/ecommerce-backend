@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 from app.Components.response import Response
 
 
-@app.route('/api/v1/admin/product', methods=['POST', 'GET',  'DELETE'])
+@app.route('/api/v1/admin/product', methods=['POST', 'GET'])
 @login_required
 def item():
     if current_user.userType == 'Buyer':
@@ -56,4 +56,23 @@ def item():
         return Response(
             data=res,
             status=200
+        )
+
+
+@app.route('/api/v1/admin/product/<id>', methods=['DELETE'])
+@login_required
+def delete_product(id):
+    if request.method == 'DELETE':
+        shop = Shop.query.filter_by(user=current_user.id).first()
+        product = Product.query.filter_by(id=id, shop=shop.id).first()
+        
+        if product:
+            product.delete()
+
+            return Response(
+                status=200
+            )
+
+        return Response(
+                status=404
         )
