@@ -1,13 +1,13 @@
 from flask import request
 from app import app, db
-from app.models import Category, Shop
+from app.models import Category, Shop, Gender
 from flask_login import login_required, current_user
 from app.Components.response import Response
 
 @login_required
 @app.route('/api/v1/shop/category', methods=['POST', 'GET'])
 def category():
-    if current_user.user_type == 'Buyer':
+    if current_user.userType == 'Buyer':
         return Response(
             status=403,
             message="error",
@@ -15,16 +15,16 @@ def category():
     
     if request.method == 'POST':
         data = request.get_json()
-        shop  = Shop.query.filter_by(seller_id=current_user.id).first()
+        shop  = Shop.query.filter_by(user=current_user.id).first()
 
-        if Category.query.filter_by(name = data['categoryName'], shop_id = shop.id).first():
+        if Category.query.filter_by(name = data['categoryName'], shop = shop.id).first():
             return Response(
                 status=409,
                 message="error",
             )
         
         category = Category(
-            shop_id = shop.id,
+            shop = shop.id,
             name = data['categoryName']
         )
 
@@ -41,8 +41,8 @@ def category():
         )
     
     if request.method == 'GET':
-        shop  = Shop.query.filter_by(seller_id=current_user.id).first()
-        categories = Category.query.filter_by(shop_id=shop.id).all()
+        shop  = Shop.query.filter_by(user=current_user.id).first()
+        categories = Category.query.filter_by(shop=shop.id).all()
 
         res = []
         for category in categories:
@@ -66,5 +66,42 @@ def delete(id):
         category.delete()
 
         return Response(
+            status=200
+        )
+
+@login_required
+@app.route('/api/v1/product/category', methods=['GET'])
+def product_category():
+    if current_user.userType == 'Buyer':
+        return Response(
+            status=403,
+            message="error",
+        )
+
+    if request.method == 'GET':
+        shop  = Shop.query.filter_by(user=current_user.id).first()
+        categories = Category.query.filter_by(shop=shop.id).all()
+        genders = Gender.query.all()
+
+        categoryList = []
+        genderList = []
+
+        for category in categories:
+            categoryList.append({
+                'id': category.id,
+                'categoryName': category.name
+            })
+
+        for gender in genders:
+            genderList.append({
+                'id': gender.id,
+                'gender': gender.name
+            })
+        
+        return Response(
+            data= {
+                'categoryList': categoryList,
+                'genderList': genderList
+            },
             status=200
         )

@@ -6,7 +6,7 @@ class Shop(db.Model, model.Component):
     __tablename__ = 'shop'
 
     id = db.Column(db.Integer, primary_key=True)
-    seller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     # name = db.Column(db.String(20), nullable=False)
     # location = db.Column(db.Text, nullable=False)

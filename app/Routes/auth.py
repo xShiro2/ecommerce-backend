@@ -11,33 +11,21 @@ def signup():
         try:
             user = request.get_json()
 
-            fname = user['firstName']
-            lname = user['lastName']
-            email = user['email']
-            password = user['password']
-            address = user['address']
-            age = user['age']
-            gender = user['gender']
-            user_type = user['userType']
-        
-            password = generate_password_hash(password)
-
             user = User(
-                first_name = fname, 
-                last_name = lname,
-                email = email,
-                password = password,
-                address = address,
-                age = age,
-                gender = gender,
-                user_type = user_type,
+                firstName = user['firstName'],
+                lastName = user['lastName'],
+                email = user['email'],
+                password = generate_password_hash(user['password']),
+                address = user['address'],
+                age = user['age'],
+                gender = user['gender'],
+                userType = user['userType'],
             )
-
             result = user.create()
 
             if result:
-                if user.user_type == 'Seller':
-                    shop = Shop(seller_id=user.id)
+                if user.userType == 'Seller':
+                    shop = Shop(user=user.id)
                     shop.create()
 
                 return Response(
@@ -51,6 +39,7 @@ def signup():
             )
 
         except Exception as e:
+            print(e)
             return Response(
                 status=500,
                 message="internal error"
@@ -87,7 +76,7 @@ def login():
                 status=200,
                 data={
                     "id": user.id,
-                    "userType": user.user_type
+                    "userType": user.userType
                 }
             )
 

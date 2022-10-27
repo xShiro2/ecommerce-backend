@@ -8,14 +8,14 @@ class User(UserMixin, db.Model, model.Component):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    first_name = db.Column(db.String(20), nullable=False)
-    last_name = db.Column(db.String(20), nullable=False)
+    firstName = db.Column(db.String(20), nullable=False)
+    lastName = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(64), nullable=False)
     password = db.Column(db.String(128), nullable=False)
     address = db.Column(db.String(64), nullable=False)
     age = db.Column(db.Integer, nullable=False)
     gender = db.Column(db.String(6), nullable=False)
-    user_type = db.Column(db.String(6), nullable=False)
+    userType = db.Column(db.String(6), nullable=False)
     
     dateCreated = db.Column(db.TIMESTAMP, server_default=func.now())
     dateUpdated = db.Column(db.TIMESTAMP, onupdate=func.now())

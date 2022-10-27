@@ -20,7 +20,7 @@ def users():
 @app.route('/api/v1/user/admin', methods=['GET', 'POST', 'DELETE'])
 @login_required
 def admin():
-    if current_user.user_type == 'Buyer':
+    if current_user.userType == 'Buyer':
         return Response(
             status=403,
             message="error",

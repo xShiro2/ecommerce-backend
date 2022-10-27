@@ -27,14 +27,15 @@ def create_tables():
     gender = [
         "Male",
         "Female",
-        "Boy",
-        "Girl",
+        "Kids-Boy",
+        "Kids-Girl",
         "Unisex"
     ]
 
-    for i in gender:
-        gen = models.Gender(name=i)
-        gen.create()
+    if not models.Gender.query.all():
+        for i in gender:
+            gen = models.Gender(name=i)
+            gen.create()
 
 @login_manager.user_loader
 def load_user(user_id):

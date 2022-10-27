@@ -6,7 +6,7 @@ class Cart(db.Model):
     __tablename__ = 'cart'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def create(self):
         db.session.add(self)
@@ -16,8 +16,8 @@ class CartItem(db.Model, model.Component):
     __tablename__ = 'cart_item'
 
     id = db.Column(db.Integer, primary_key=True)
-    cart_id = db.Column(db.Integer, db.ForeignKey('cart.id'))
-    item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
+    cart = db.Column(db.Integer, db.ForeignKey('cart.id'))
+    product = db.Column(db.Integer, db.ForeignKey('product.id'))
     quantity = db.Column(db.Integer, nullable=False)
 
     dateAdded = db.Column(db.TIMESTAMP, server_default=func.now())

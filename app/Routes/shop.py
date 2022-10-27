@@ -7,7 +7,7 @@ from app.Components.response import Response
 @app.route('/api/v1/shop', methods=['POST', 'GET', 'DELETE'])
 @login_required
 def shop():
-    if current_user.user_type == 'Buyer':
+    if current_user.userType == 'Buyer':
         return Response(
             status=403,
             message="error",
