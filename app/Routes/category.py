@@ -1,9 +1,8 @@
 from flask import request
 from app import app, db
-from app.models import Category, Shop, Gender
+from app.models import Category, Shop, Gender, Product
 from flask_login import login_required, current_user
 from app.Components.response import Response
-from sqlalchemy import exc
 
 @login_required
 @app.route('/api/v1/shop/category', methods=['POST', 'GET'])
@@ -60,28 +59,44 @@ def category():
         )
     
 @login_required
-@app.route('/api/v1/shop/category/<id>', methods=['DELETE'])
-def delete(id):
+@app.route('/api/v1/shop/category/<id>', methods=['POST', 'DELETE'])
+def cat(id):
     if request.method == 'DELETE':
         shop = Shop.query.filter_by(user=current_user.id).first()
         category = Category.query.filter_by(id=id, shop=shop.id).first()
         if category:
-            try:
-                category.delete()
-            except exc.IntegrityError:
-                db.session.rollback()
+            if Product.query.filter_by(category=category.id).first():
                 return Response(
                     status=409,
-                    message='error'
                 )
-
+            category.delete()
             return Response(
-                status=200
+                status=200,
             )
 
         return Response(
             status=404
         )
+    if request.method == 'POST':
+        data = request.get_json()
+        shop = Shop.query.filter_by(user=current_user.id).first()
+        category = Category.query.filter_by(id=id, shop=shop.id).first()
+
+        if category:
+            category.name = data['categoryName']
+            category.update()
+
+            res = {
+                'id': category.id,
+                'categoryName': category.name,
+                'dateCreated': category.dateCreated,
+                'dateUpdated': category.dateUpdated,
+            }
+            return Response(
+                status=200,
+                data=res
+            )
+
 
 @login_required
 @app.route('/api/v1/product/category', methods=['GET'])
@@ -105,6 +120,11 @@ def product_category():
                 'id': category.id,
                 'categoryName': category.name
             })
+
+        if len(categoryList) == 0:
+            return Response(
+                status=204,
+            )
 
         for gender in genders:
             genderList.append({

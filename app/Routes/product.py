@@ -8,7 +8,7 @@ from app.Components.response import Response
 
 @app.route('/api/v1/admin/product', methods=['POST', 'GET'])
 @login_required
-def item():
+def products():
     if current_user.userType == 'Buyer':
         return Response(
             status=403,
@@ -59,9 +59,9 @@ def item():
         )
 
 
-@app.route('/api/v1/admin/product/<id>', methods=['DELETE'])
+@app.route('/api/v1/admin/product/<id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
-def delete_product(id):
+def product(id):
     if request.method == 'DELETE':
         shop = Shop.query.filter_by(user=current_user.id).first()
         product = Product.query.filter_by(id=id, shop=shop.id).first()
@@ -76,3 +76,39 @@ def delete_product(id):
         return Response(
                 status=404
         )
+    
+    if request.method == 'GET':
+        shop = Shop.query.filter_by(user=current_user.id).first()
+        product = Product.query.filter_by(id=id, shop=shop.id).first()
+        
+        if product:
+            prod = product.to_dict()
+            prod['category'] = Category.query.get_or_404(product.category).name
+            prod['gender'] = Gender.query.get_or_404(product.gender).name
+            return Response(
+                status=200,
+                data=prod
+            )
+    
+    if request.method == 'POST':
+        data = request.get_json()
+
+        shop = Shop.query.filter_by(user=current_user.id).first()
+        product = Product.query.filter_by(id=id, shop=shop.id).first()
+
+        if product:
+            gender = Gender.query.filter_by(name=data['gender']).first()
+            category = Category.query.filter_by(name=data['category'], shop=shop.id).first()
+
+            product.productName = data['productName']
+            product.description = data['description']
+            product.price = data['price']
+            product.quantity = data['quantity']
+            product.gender = gender.id
+            product.category = category.id
+
+            product.update()
+
+            return Response(
+                status=201
+            )
