@@ -1,3 +1,6 @@
+# image folder
+IMAGE_FOLDER/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
