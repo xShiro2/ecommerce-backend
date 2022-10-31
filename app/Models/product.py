@@ -10,13 +10,24 @@ class Product(db.Model, model.Component):
     productName = db.Column(db.String(20), nullable=False)
     description = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
 
     gender = db.Column(db.Integer, db.ForeignKey('gender.id'), nullable=False)
     category = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    
+    quantityStatus = db.relationship('QuantityStatus', backref='prod', lazy='joined')
+
     dateCreated = db.Column(db.TIMESTAMP, server_default=func.now())
     dateUpdated = db.Column(db.TIMESTAMP, onupdate=func.now())
+
+class QuantityStatus(db.Model, model.Component):
+    __tablename__ = 'quantity_status'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product = db.Column(db.Integer, db.ForeignKey('product.id'))
+    quantity = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.Boolean, nullable=False)
+
+    dateUpdated = db.Column(db.TIMESTAMP, onupdate=func.now())
+
 
 class Category(db.Model, model.Component):
     __tablename__ = 'category'

@@ -1,10 +1,8 @@
-from math import prod
 from flask import request
 from app import app
-from app.models import Shop, Product, Gender, Category
+from app.models import Shop, Product, Gender, Category, QuantityStatus
 from flask_login import login_required, current_user
 from app.Components.response import Response
-
 
 @app.route('/api/v1/admin/product', methods=['POST', 'GET'])
 @login_required
@@ -19,22 +17,28 @@ def products():
         data = request.get_json()
 
         shop = Shop.query.filter_by(user=current_user.id).first_or_404()
-        
         if shop:
-            gender = Gender.query.filter_by(name=data['gender']).first()
-            category = Category.query.filter_by(name=data['category'], shop=shop.id).first()
+            gender = Gender.query.filter_by(id=data['gender']).first()
+            category = Category.query.filter_by(id=data['category'], shop=shop.id).first()
             product = Product(
                 shop = shop.id,
                 productName=data['productName'],
                 description=data['description'],
                 price = data['price'],
-                quantity = data['quantity'],
 
                 gender = gender.id,
                 category = category.id
             )
 
             product.create()
+
+            quantityStatus = QuantityStatus(
+                product=product.id,
+                quantity = 0,
+                status = False
+            )
+
+            quantityStatus.create()
 
             return Response(
                 status=201,
@@ -48,8 +52,8 @@ def products():
         res = []
         for product in products:
             prod = product.to_dict()
-            prod['category'] = Category.query.get_or_404(product.category).name
-            prod['gender'] = Gender.query.get_or_404(product.gender).name
+            prod['category'] = product.cat.name
+            prod['gender'] = product.gen.name
             
             res.append(prod)
 
@@ -57,7 +61,6 @@ def products():
             data=res,
             status=200
         )
-
 
 @app.route('/api/v1/admin/product/<id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
@@ -67,6 +70,9 @@ def product(id):
         product = Product.query.filter_by(id=id, shop=shop.id).first()
         
         if product:
+            quantityStatus = QuantityStatus.query.filter_by(product=product.id).first()
+            quantityStatus.delete()
+            
             product.delete()
 
             return Response(
@@ -83,8 +89,8 @@ def product(id):
         
         if product:
             prod = product.to_dict()
-            prod['category'] = Category.query.get_or_404(product.category).name
-            prod['gender'] = Gender.query.get_or_404(product.gender).name
+            prod['category'] = product.cat.name
+            prod['gender'] = product.gen.name
             return Response(
                 status=200,
                 data=prod
@@ -97,13 +103,12 @@ def product(id):
         product = Product.query.filter_by(id=id, shop=shop.id).first()
 
         if product:
-            gender = Gender.query.filter_by(name=data['gender']).first()
-            category = Category.query.filter_by(name=data['category'], shop=shop.id).first()
+            gender = Gender.query.filter_by(id=data['gender']).first()
+            category = Category.query.filter_by(id=data['category'], shop=shop.id).first()
 
             product.productName = data['productName']
             product.description = data['description']
             product.price = data['price']
-            product.quantity = data['quantity']
             product.gender = gender.id
             product.category = category.id
 

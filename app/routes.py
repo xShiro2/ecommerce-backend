@@ -6,3 +6,5 @@ from app.Routes import product
 from app.Routes import order
 from app.Routes import cart
 from app.Routes import category
+from app.Routes import stocks
+from app.Routes import images
