@@ -23,33 +23,39 @@ def products():
 
         shop = Shop.query.filter_by(user=current_user.id).first_or_404()
         if shop:
-            img_path = save_img(request.files['image'])
-            gender = Gender.query.filter_by(id=gender_id).first()
-            category = Category.query.filter_by(id=category_id, shop=shop.id).first()
-            product = Product(
-                shop = shop.id,
-                productName=productName,
-                description=description,
-                price = price,
-                image = img_path,
-                gender = gender.id,
-                category = category.id
-            )
+            try:
+                img_path = save_img(request.files['image'])
+                gender = Gender.query.filter_by(id=gender_id).first()
+                category = Category.query.filter_by(id=category_id, shop=shop.id).first()
+                product = Product(
+                    shop = shop.id,
+                    productName=productName,
+                    description=description,
+                    price = price,
+                    image = img_path,
+                    gender = gender.id,
+                    category = category.id
+                )
 
-            product.create()
+                product.create()
 
-            quantityStatus = QuantityStatus(
-                product=product.id,
-                quantity = 0,
-                status = False
-            )
+                quantityStatus = QuantityStatus(
+                    product=product.id,
+                    quantity = 0,
+                    status = False
+                )
 
-            quantityStatus.create()
+                quantityStatus.create()
 
-            return Response(
-                status=201,
-                message="success",
-            )
+                return Response(
+                    status=201,
+                    message="success",
+                )
+            except Exception as e:
+                print(e)
+                return Response(
+                    status=500
+                )
     
     if request.method == 'GET':
         shop  = Shop.query.filter_by(user=current_user.id).first()
@@ -134,3 +140,23 @@ def product(id):
             return Response(
                 status=201
             )
+
+@app.route('/api/v1/products', methods=['GET'])
+def getproducts():
+    if request.method == 'GET':
+        activeProducts = QuantityStatus.query.filter_by(status=True).all()
+
+        products=[]
+        for id in activeProducts:
+            product = Product.query.filter_by(id=id.product).first()
+            prod = product.to_dict(exclude='image')
+            prod['category'] = product.cat.name
+            prod['gender'] = product.gen.name
+            prod['quantity'] = id.quantity
+
+            products.append(prod)
+
+        return Response(
+            data=products,
+            status=200
+        )
