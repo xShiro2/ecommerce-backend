@@ -160,3 +160,44 @@ def getproducts():
             data=products,
             status=200
         )
+
+@app.route('/api/v1/products/<filter>', methods=['GET'])
+def getFilteredProduct(filter):
+    if request.method == 'GET':
+        if filter == 'men':
+            category = Gender.query.filter_by(name='Male').first()
+        if filter == 'women':
+            category = Gender.query.filter_by(name='Female').first()
+        if filter == 'kids':
+            category = Gender.query.filter_by(name='Kids').first()
+
+        filtered = Product.query.filter_by(category=category.id).all()
+
+        products=[]
+        for product in filtered:
+            quantityStatus = QuantityStatus.query.filter_by(product=product.id).first()
+            if quantityStatus.status:
+                prod = product.to_dict(exclude='image')
+                prod['category'] = product.cat.name
+                prod['gender'] = product.gen.name
+                prod['quantity'] = quantityStatus.quantity
+
+                products.append(prod)
+
+        return Response(
+            data=products,
+            status=200
+        )
+
+@app.route('/api/v1/product/<id>', methods=['GET'])
+def displayproduct(id):
+    if request.method == 'GET':
+        product = Product.query.filter_by(id=id).first()
+        prod = product.to_dict(exclude='image')
+        prod['category'] = product.cat.name
+        prod['gender'] = product.gen.name
+
+        return Response(
+            data=prod,
+            status=200
+        )

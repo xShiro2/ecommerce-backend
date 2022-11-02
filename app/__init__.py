@@ -27,8 +27,7 @@ def create_tables():
     gender = [
         "Male",
         "Female",
-        "Kids-Boy",
-        "Kids-Girl",
+        "Kids",
         "Unisex"
     ]
 
