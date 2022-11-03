@@ -165,13 +165,13 @@ def getproducts():
 def getFilteredProduct(filter):
     if request.method == 'GET':
         if filter == 'men':
-            category = Gender.query.filter_by(name='Male').first()
+            gender = Gender.query.filter_by(name='Male').first()
         if filter == 'women':
-            category = Gender.query.filter_by(name='Female').first()
+            gender = Gender.query.filter_by(name='Female').first()
         if filter == 'kids':
-            category = Gender.query.filter_by(name='Kids').first()
+            gender = Gender.query.filter_by(name='Kids').first()
 
-        filtered = Product.query.filter_by(category=category.id).all()
+        filtered = Product.query.filter_by(gender=gender.id).all()
 
         products=[]
         for product in filtered:
