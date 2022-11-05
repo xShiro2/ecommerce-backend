@@ -16,6 +16,7 @@ if __name__ == '__main__':
 
 from app import routes
 from app import models
+from app.Test import Test
 
 @app.before_first_request
 def create_tables():
@@ -28,13 +29,14 @@ def create_tables():
         "Male",
         "Female",
         "Kids",
-        "Unisex"
     ]
 
     if not models.Gender.query.all():
         for i in gender:
             gen = models.Gender(name=i)
             gen.create()
+
+    #Test.start()
 
 @login_manager.user_loader
 def load_user(user_id):
