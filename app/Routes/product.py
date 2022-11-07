@@ -146,10 +146,17 @@ def getproducts():
     minNumber = 12
     if request.method == 'GET':
         prod_filter = request.args.get('filter')
-        page = int(request.args.get('page'))
+        page = request.args.get('page')
+        keyword = request.args.get('keyword')
+
+        if page:
+            page = int(page)
+        else:
+            page = 1
 
         prod_len = Product.query.join(QuantityStatus.query.filter_by(status=True)).all()
         products = Product.query.join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
+        
         if prod_filter:
             gender = []
             if prod_filter == 'men':
@@ -170,6 +177,10 @@ def getproducts():
                 prod_len = Product.query.filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).all()
         else:
             pass
+
+        if keyword:
+            products = Product.query.filter(Product.productName.like('%'+keyword+'%')).paginate(page=page, per_page=minNumber)
+            prod_len = Product.query.filter(Product.productName.like('%'+keyword+'%')).all()
 
         prods=[]
         for product in products:
