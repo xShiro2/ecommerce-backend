@@ -42,6 +42,11 @@ def category():
     
     if request.method == 'GET':
         shop  = Shop.query.filter_by(user=current_user.id).first()
+        if not shop:
+            return Response(
+                status=404,
+            )
+    
         categories = Category.query.filter_by(shop=shop.id).all()
 
         res = []

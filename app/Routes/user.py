@@ -2,6 +2,7 @@ from app import app
 from flask_login import login_required, current_user
 from flask import request
 from app.Components.response import Response
+from app.models import Shop
     
 @app.route('/api/v1/user', methods=['GET', 'POST', 'DELETE'])
 @login_required
@@ -31,9 +32,15 @@ def admin():
             return Response(
                 status = 401
             )
+
+        user = current_user.to_dict(exclude=['password'])
+        shop = Shop.query.filter_by(user=current_user.id).first()
+
+        if shop:
+            user['shop'] = shop.id
+
         return Response(
             status = 200,
-            message= "",
-            data = current_user.to_dict(exclude=['password']),
+            data = user,
         )
 

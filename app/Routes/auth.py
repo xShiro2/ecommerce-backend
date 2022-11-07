@@ -21,13 +21,10 @@ def signup():
                 gender = user['gender'],
                 userType = user['userType'],
             )
+            
             result = user.create()
 
             if result:
-                if user.userType == 'Seller':
-                    shop = Shop(user=user.id)
-                    shop.create()
-
                 return Response(
                     status=201,
                     message="sucess"
