@@ -15,16 +15,28 @@ def cart():
     
     if request.method == 'POST':
         data = request.get_json()
+        product = Product.query.get(data['id'])
+        quantity = data['quantity']
         cart = Cart.query.filter_by(user=current_user.id).first()
         
         if not cart:
             cart = Cart(user=current_user.id)
             cart.create()
         
+        cartItem = CartItem.query.filter_by(cart=cart.id, product=product.id).first()
+
+        if cartItem:
+            cartItem.quantity = quantity + cartItem.quantity
+            cartItem.update()
+
+            return Response(
+                status=201
+            )
+
         cartItem = CartItem(
             cart = cart.id,
-            product = data['id'],
-            quantity = data['quantity']
+            product = product.id,
+            quantity = quantity
         )
 
         cartItem.create()
@@ -41,11 +53,10 @@ def cart():
             cart.create()
 
         cart_items = CartItem.query.filter_by(cart=cart.id).all()
-
         if cart_items:
             items = []
             for item in cart_items:
-                product = Product.query.filter_by(id=item.id).first()
+                product = Product.query.get(item.product)
                 shop = Shop.query.get(product.shop)
                 user = User.query.get(shop.user)
 
@@ -71,7 +82,7 @@ def cart():
 def delete(id):
     if request.method == 'DELETE':
         cart = Cart.query.filter_by(user=current_user.id).first()
-        cart_item = CartItem.query.filter_by(cart=cart.id, id=id).first()
+        cart_item = CartItem.query.filter_by(cart=cart.id, product=id).first()
         cart_item.delete()
 
         return Response(
