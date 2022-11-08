@@ -152,6 +152,7 @@ def getproducts():
         prod_filter = request.args.get('filter')
         page = request.args.get('page')
         keyword = request.args.get('keyword')
+        shop = request.args.get('shop')
 
         if page:
             page = int(page)
@@ -179,12 +180,14 @@ def getproducts():
             if gender:
                 products = Product.query.filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
                 prod_len = Product.query.filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).all()
-        else:
-            pass
 
         if keyword:
             products = Product.query.filter(Product.productName.like('%'+keyword+'%')).paginate(page=page, per_page=minNumber)
             prod_len = Product.query.filter(Product.productName.like('%'+keyword+'%')).all()
+
+        if shop:
+            products = Product.query.filter_by(shop=shop).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
+            prod_len = Product.query.filter_by(shop=shop).join(QuantityStatus.query.filter_by(status=True)).all()
 
         prods=[]
         for product in products:
