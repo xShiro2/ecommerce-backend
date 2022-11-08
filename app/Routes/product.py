@@ -208,15 +208,11 @@ def displayproduct(id):
     if request.method == 'GET':
         product = Product.query.filter_by(id=id).first()
         quantityStatus = QuantityStatus.query.filter_by(product=product.id).first()
-        shop = Shop.query.get(product.shop)
-        user = User.query.get(shop.user)
 
         prod = product.to_dict(exclude='image')
         prod['category'] = product.cat.name
         prod['gender'] = product.gen.name
         prod['quantity'] = quantityStatus.quantity
-        prod['seller'] = user.firstName +" "+ user.lastName
-        prod['sellerAddress'] = user.address
 
         return Response(
             data=prod,

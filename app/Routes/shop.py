@@ -1,6 +1,6 @@
 from flask import request
 from app import app
-from app.models import Shop
+from app.models import Shop, User, Product
 from flask_login import login_required, current_user
 from app.Components.response import Response
 from app.Components.image_handler import save_img, delete_img
@@ -63,6 +63,32 @@ def shop():
         return Response(
             status = 204,
         )
+
+@app.route('/api/v1/seller/shop', methods=['GET'])
+def getShop():
+    shop_id = request.args.get('shop')
+    page = request.args.get('page')
+    
+    if page:
+        page = int(page)
+    else:
+        page = 1
+
+    shop = Shop.query.get(shop_id)
+    user = User.query.get(shop.user)
+    products = Product.query.filter_by(shop=shop.id).all()
+    data = shop.to_dict(exclude="image")
+    data['seller'] = user.email
+    data['products'] = len(products)
+
+    if shop:
+        return Response(
+            status=200,
+            data=data
+            )
+    return Response(
+        status=204,
+    )
 
 
         
