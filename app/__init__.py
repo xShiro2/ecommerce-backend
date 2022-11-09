@@ -24,17 +24,30 @@ def create_tables():
     db.create_all()
     db.session.commit()
 
-    # create sample gender
+    # create gender list
     gender = [
         "Male",
         "Female",
         "Kids",
     ]
 
+    # create order status list
+    status = [
+        "Pending",
+        "Preparing",
+        "Shipped",
+        "Complete"
+    ]
+
     if not models.Gender.query.all():
         for i in gender:
             gen = models.Gender(name=i)
             gen.create()
+
+    if not models.OrderStatus.query.all():
+        for i in status:
+            stat = models.OrderStatus(name=i)
+            stat.create()
 
     #Test.start()
 

@@ -2,15 +2,11 @@ from app import db
 from sqlalchemy.sql import func
 from app.Components import model
 
-class Cart(db.Model):
+class Cart(db.Model, model.Component):
     __tablename__ = 'cart'
 
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-    def create(self):
-        db.session.add(self)
-        db.session.commit()
 
 class CartItem(db.Model, model.Component):
     __tablename__ = 'cart_item'

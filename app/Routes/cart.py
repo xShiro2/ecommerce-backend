@@ -58,14 +58,12 @@ def cart():
             for item in cart_items:
                 product = Product.query.get(item.product)
                 shop = Shop.query.get(product.shop)
-                user = User.query.get(shop.user)
 
                 prod = product.to_dict(exclude=['image', 'description', 'shop', 'dateCreated', 'dateUpdated'])
                 prod['category'] = product.cat.name
                 prod['gender'] = product.gen.name
                 prod['quantity'] = item.quantity
-                prod['seller'] = user.firstName +" "+ user.lastName
-                prod['sellerAddress'] = user.address
+                prod['shop'] = shop.shopName
                 items.append(prod)
 
             return Response(

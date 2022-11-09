@@ -8,3 +8,4 @@ from app.Routes import cart
 from app.Routes import category
 from app.Routes import stocks
 from app.Routes import image
+from app.Routes import checkout
