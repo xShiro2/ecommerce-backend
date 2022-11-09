@@ -28,6 +28,9 @@ def mypurchase():
             prod['quantity'] = order.quantity
             prod['shop'] = shop.shopName
             prod['status'] = status.name
+            prod['fullname'] = order.fullname
+            prod['number'] = order.number
+            prod['address'] = order.address
             prod['dateCreated'] = order.dateCreated
 
             products.append(prod)

@@ -11,7 +11,7 @@ class Order(db.Model, model.Component):
     quantity = db.Column(db.Integer, nullable=False)
     
     fullname = db.Column(db.Text, nullable=False)
-    number = db.Column(db.Integer, nullable=False)
+    number = db.Column(db.String(14), nullable=False)
     address = db.Column(db.Text, nullable=False)
 
     status = db.Column(db.Integer, db.ForeignKey('orderStatus.id'))

@@ -16,7 +16,7 @@ def checkout():
     if request.method == 'POST':
         data = request.get_json()
         fullname = data['fullname']
-        number = data['phonenumber']
+        num = data['phonenumber']
         address = data['address']
 
         cart = Cart.query.filter_by(user=current_user.id).first()
@@ -34,7 +34,7 @@ def checkout():
                     quantity=item.quantity,
 
                     fullname=fullname,
-                    number=number,
+                    number=num,
                     address=address,
                     
                     status = status.id
