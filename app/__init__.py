@@ -33,10 +33,11 @@ def create_tables():
 
     # create order status list
     status = [
-        "Pending",
-        "Preparing",
-        "Shipped",
-        "Complete"
+        "PENDING",
+        "PREPARING",
+        "SHIPPED",
+        "COMPLETE",
+        "CANCELLED"
     ]
 
     if not models.Gender.query.all():

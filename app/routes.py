@@ -9,3 +9,4 @@ from app.Routes import category
 from app.Routes import stocks
 from app.Routes import image
 from app.Routes import checkout
+from app.Routes import mypurchase

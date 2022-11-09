@@ -1,6 +1,6 @@
 from flask import request
 from app import app
-from app.models import Shop, Product, Gender, Category, QuantityStatus, User
+from app.models import Shop, Product, Gender, Category, QuantityStatus, Order
 from flask_login import login_required, current_user
 from app.Components.response import Response
 from app.Components.image_handler import save_img, delete_img
@@ -192,10 +192,18 @@ def getproducts():
         prods=[]
         for product in products:
             quantityStatus = QuantityStatus.query.filter_by(product=product.id).first()
+            orders = Order.query.filter_by(product=product.id).all()
+        
+            if orders:
+                sold = sum([order.quantity for order in orders])
+            else:
+                sold = 0
+
             prod = product.to_dict(exclude='image')
             prod['category'] = product.cat.name
             prod['gender'] = product.gen.name
             prod['quantity'] = quantityStatus.quantity
+            prod['sold'] = sold
 
             prods.append(prod)
 
@@ -211,11 +219,18 @@ def displayproduct(id):
     if request.method == 'GET':
         product = Product.query.filter_by(id=id).first()
         quantityStatus = QuantityStatus.query.filter_by(product=product.id).first()
+        orders = Order.query.filter_by(product=product.id).all()
+
+        if orders:
+            sold = sum([order.quantity for order in orders])
+        else:
+            sold = 0
 
         prod = product.to_dict(exclude='image')
         prod['category'] = product.cat.name
         prod['gender'] = product.gen.name
         prod['quantity'] = quantityStatus.quantity
+        prod['sold'] = sold
 
         return Response(
             data=prod,

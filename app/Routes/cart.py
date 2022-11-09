@@ -68,7 +68,8 @@ def cart():
 
             return Response(
                 status=200,
-                data= items
+                data= items,
+                message=len(items)
             )
 
         return Response(
