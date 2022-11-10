@@ -22,3 +22,10 @@ class OrderStatus(db.Model, model.Component):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), nullable=False)
+
+class Sold(db.Model, model.Component):
+    __tablename__ = 'sold'
+
+    id = db.Column(db.Integer, primary_key=True)
+    product = db.Column(db.Integer, db.ForeignKey('product.id'))
+    quantity = db.Column(db.Integer, nullable=False)

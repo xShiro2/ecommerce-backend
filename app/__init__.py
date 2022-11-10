@@ -16,11 +16,11 @@ if __name__ == '__main__':
 
 from app import routes
 from app import models
-#from app.Test import Test
+from app.Test import Test
 
 @app.before_first_request
 def create_tables():
-    #db.drop_all()
+    db.drop_all()
     db.create_all()
     db.session.commit()
 
@@ -50,7 +50,7 @@ def create_tables():
             stat = models.OrderStatus(name=i)
             stat.create()
 
-    #Test.start()
+    Test.start()
 
 @login_manager.user_loader
 def load_user(user_id):

@@ -1,6 +1,6 @@
 from flask import request
 from app import app
-from app.models import Shop, Product, Gender, Category, QuantityStatus, Order
+from app.models import Shop, Product, Gender, Sold, Category, QuantityStatus, Order
 from flask_login import login_required, current_user
 from app.Components.response import Response
 from app.Components.image_handler import save_img, delete_img
@@ -46,6 +46,13 @@ def products():
                 )
 
                 quantityStatus.create()
+
+                sold = Sold(
+                    product=product.id,
+                    quantity=0
+                )
+
+                sold.create()
 
                 return Response(
                     status=201,
@@ -159,7 +166,7 @@ def getproducts():
         else:
             page = 1
 
-        prod_len = Product.query.join(QuantityStatus.query.filter_by(status=True)).all()
+        prod_len = len(Product.query.join(QuantityStatus.query.filter_by(status=True)).all())
         products = Product.query.join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
         
         if prod_filter:
@@ -170,46 +177,52 @@ def getproducts():
                 gender = Gender.query.filter_by(name='Female').first()
             if prod_filter == 'kids':
                 gender = Gender.query.filter_by(name='Kids').first()
+
             if prod_filter == 'best':
-                pass
+                sold = Sold.query.order_by(Sold.quantity.desc()).all()
+                products = []
+                for i, sol in enumerate(sold):
+                    if i < minNumber and sol.quantity > 0:
+                        product = Product.query.get(sol.id)
+                        products.append(product)
+
+                prod_len = minNumber
+                
             if prod_filter == 'featured':
                 pass
+            
             if prod_filter == 'latest':
                 products = Product.query.order_by(Product.dateCreated.desc()).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
-                prod_len = Product.query.order_by(Product.dateCreated.desc()).all()
+                prod_len = len(Product.query.order_by(Product.dateCreated.desc()).all())
+            
             if gender:
                 products = Product.query.filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
-                prod_len = Product.query.filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).all()
+                prod_len = len(Product.query.filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).all())
 
         if keyword:
-            products = Product.query.filter(Product.productName.like('%'+keyword+'%')).paginate(page=page, per_page=minNumber)
-            prod_len = Product.query.filter(Product.productName.like('%'+keyword+'%')).all()
+            products = Product.query.filter(Product.productName.like('%'+keyword+'%')).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
+            prod_len = len(Product.query.filter(Product.productName.like('%'+keyword+'%')).all())
 
         if shop:
             products = Product.query.filter_by(shop=shop).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
-            prod_len = Product.query.filter_by(shop=shop).join(QuantityStatus.query.filter_by(status=True)).all()
+            prod_len = len(Product.query.filter_by(shop=shop).join(QuantityStatus.query.filter_by(status=True)).all())
 
         prods=[]
         for product in products:
             quantityStatus = QuantityStatus.query.filter_by(product=product.id).first()
-            orders = Order.query.filter_by(product=product.id).all()
-        
-            if orders:
-                sold = sum([order.quantity for order in orders])
-            else:
-                sold = 0
+            sold = Sold.query.filter_by(product=product.id).first()
 
             prod = product.to_dict(exclude='image')
             prod['category'] = product.cat.name
             prod['gender'] = product.gen.name
             prod['quantity'] = quantityStatus.quantity
-            prod['sold'] = sold
+            prod['sold'] = sold.quantity
 
             prods.append(prod)
 
         return Response(
             data=prods,
-            message=len(prod_len),
+            message=prod_len,
             status=200
         )
 
@@ -219,18 +232,13 @@ def displayproduct(id):
     if request.method == 'GET':
         product = Product.query.filter_by(id=id).first()
         quantityStatus = QuantityStatus.query.filter_by(product=product.id).first()
-        orders = Order.query.filter_by(product=product.id).all()
-
-        if orders:
-            sold = sum([order.quantity for order in orders])
-        else:
-            sold = 0
+        sold = Sold.query.filter_by(product=product.id).first()
 
         prod = product.to_dict(exclude='image')
         prod['category'] = product.cat.name
         prod['gender'] = product.gen.name
         prod['quantity'] = quantityStatus.quantity
-        prod['sold'] = sold
+        prod['sold'] = sold.quantity
 
         return Response(
             data=prod,

@@ -1,6 +1,6 @@
 from flask import request
 from app import app
-from app.models import Cart, CartItem, Product, QuantityStatus, Order, OrderStatus
+from app.models import Cart, Sold, CartItem, Product, QuantityStatus, Order, OrderStatus
 from flask_login import login_required, current_user
 from app.Components.response import Response
 
@@ -44,6 +44,10 @@ def checkout():
 
                 quantityStatus.quantity -= item.quantity
                 quantityStatus.update()
+
+                sold = Sold.query.filter_by(product=product.id).first()
+                sold.quantity += item.quantity
+                sold.update()
 
                 item.delete()
 
