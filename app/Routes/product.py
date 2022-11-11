@@ -211,6 +211,16 @@ def getproducts():
                     data=data,
                     status=200
                 )
+
+            if prod_filter == 'best':
+                sold = Sold.query.order_by(Sold.quantity.desc()).all()
+                products = []
+                for i, sol in enumerate(sold):
+                    if i < minNumber and sol.quantity > 0:
+                        product = Product.query.get(sol.id)
+                        products.append(product)
+
+                prod_len = minNumber
             
             if prod_filter == 'recommended':
                 cartItems = CartItem.query.join(Cart.query.filter_by(user=current_user.id)).all()
