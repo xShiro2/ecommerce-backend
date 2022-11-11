@@ -1,10 +1,13 @@
 from flask import request
 from app import app
-from app.models import Shop, Product, Gender, Sold, Category, QuantityStatus, Order
+from app.models import Shop, Product, Gender, Sold, Category, QuantityStatus, Order, User, Cart, CartItem
 from flask_login import login_required, current_user
 from app.Components.response import Response
 from app.Components.image_handler import save_img, delete_img
+from app.recommender import get_recommendations
 
+
+# ADMIN SIDE ROUTES
 @app.route('/api/v1/admin/product', methods=['POST', 'GET'])
 @login_required
 def products():
@@ -152,6 +155,8 @@ def product(id):
                 status=201
             )
 
+
+# USER SIDE ROUTES
 @app.route('/api/v1/products', methods=['GET'])
 def getproducts():
     minNumber = 12
@@ -166,8 +171,8 @@ def getproducts():
         else:
             page = 1
 
-        prod_len = len(Product.query.join(QuantityStatus.query.filter_by(status=True)).all())
-        products = Product.query.join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
+        prod_len = 0
+        products = []
         
         if prod_filter:
             gender = []
@@ -177,28 +182,78 @@ def getproducts():
                 gender = Gender.query.filter_by(name='Female').first()
             if prod_filter == 'kids':
                 gender = Gender.query.filter_by(name='Kids').first()
-
-            if prod_filter == 'best':
-                sold = Sold.query.order_by(Sold.quantity.desc()).all()
-                products = []
-                for i, sol in enumerate(sold):
-                    if i < minNumber and sol.quantity > 0:
-                        product = Product.query.get(sol.id)
-                        products.append(product)
-
-                prod_len = minNumber
                 
-            if prod_filter == 'featured':
-                pass
-            
-            if prod_filter == 'latest':
-                products = Product.query.order_by(Product.dateCreated.desc()).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
-                prod_len = len(Product.query.order_by(Product.dateCreated.desc()).all())
-            
             if gender:
                 products = Product.query.filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
                 prod_len = len(Product.query.filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).all())
 
+            if prod_filter == 'latest':
+                products = Product.query.order_by(Product.dateCreated.desc()).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
+                prod_len = len(Product.query.order_by(Product.dateCreated.desc()).all())
+
+            if prod_filter == 'similar':
+                id = request.args.get('id')
+                if id:
+                    prod = Product.query.get(id)
+                    products = Product.query.filter(Product.category==prod.category, Product.id!=id).paginate(page=page, per_page=minNumber)
+                    prod_len = len(Product.query.filter_by(category=prod.category).all())
+
+            if prod_filter == 'shops':
+                shops = Shop.query.paginate(page=page, per_page=minNumber)
+                data = []
+                for shop in shops:
+                    dat = shop.to_dict()
+                    products = Product.query.filter_by(shop=shop.id).all()
+                    dat['products'] = len(products)
+                    data.append(dat)
+                
+                return Response(
+                    data=data,
+                    status=200
+                )
+            
+            if prod_filter == 'recommended':
+                cartItems = CartItem.query.join(Cart.query.filter_by(user=current_user.id)).all()
+                purchases = Order.query.filter_by(user=current_user.id).all()
+
+                if len(cartItems) + len(purchases) < 3:
+                    sold = Sold.query.order_by(Sold.quantity.desc()).all()
+                    products = []
+                    for i, sol in enumerate(sold):
+                        if i < minNumber and sol.quantity > 0:
+                            product = Product.query.get(sol.id)
+                            products.append(product)
+
+                    prod_len = minNumber
+
+                else:
+                    users = User.query.filter_by(userType="Buyer").all()
+                    data = {}
+                    for user in users:
+                        ids = []
+                        cart = Cart.query.filter_by(user=user.id).first()
+                        cartItems = CartItem.query.filter_by(cart=cart.id).all()
+                        purchases = Order.query.filter_by(user=user.id).all()
+
+                        for item in purchases:
+                            if item.product not in ids:
+                                ids.append(item.product)
+
+                        for item in cartItems:
+                            if item.product not in ids:
+                                ids.append(item.product)
+
+                        data[user.id] = ids
+
+                    recommended = get_recommendations(data, current_user.id)
+
+                    products = []
+                    for id in recommended:
+                        product = Product.query.get(id)
+                        products.append(product)
+
+                    prod_len = len(recommended)
+                    
         if keyword:
             products = Product.query.filter(Product.productName.like('%'+keyword+'%')).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
             prod_len = len(Product.query.filter(Product.productName.like('%'+keyword+'%')).all())

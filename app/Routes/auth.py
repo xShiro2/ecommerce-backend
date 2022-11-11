@@ -1,7 +1,7 @@
 from flask import request
 from flask_login import login_user, login_required, logout_user
 from app import app
-from app.models import User, Shop
+from app.models import User, Cart
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.Components.response import Response
 
@@ -25,6 +25,10 @@ def signup():
             result = user.create()
 
             if result:
+                if user.userType == 'Buyer':        
+                    cart = Cart(user=user.id)
+                    cart.create()
+
                 return Response(
                     status=201,
                     message="sucess"
@@ -50,7 +54,6 @@ def login():
 
             email = request_data['email']
             password = request_data['password']
-            #remember = request_data['remember']
             remember = True
 
             user = User().query.filter_by(email=email).first()
@@ -77,7 +80,7 @@ def login():
                 }
             )
 
-        except ValueError as e:
+        except Exception as e:
             return Response(
                 status=500,
                 message="internal error"

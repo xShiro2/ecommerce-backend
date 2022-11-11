@@ -18,11 +18,6 @@ def cart():
         product = Product.query.get(data['id'])
         quantity = data['quantity']
         cart = Cart.query.filter_by(user=current_user.id).first()
-        
-        if not cart:
-            cart = Cart(user=current_user.id)
-            cart.create()
-        
         cartItem = CartItem.query.filter_by(cart=cart.id, product=product.id).first()
 
         if cartItem:
