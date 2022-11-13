@@ -256,13 +256,23 @@ def getproducts():
                         data[user.id] = ids
 
                     recommended = get_recommendations(data, current_user.id)
+                    if recommended:
+                        products = []
+                        for id in recommended:
+                            product = Product.query.get(id)
+                            products.append(product)
 
-                    products = []
-                    for id in recommended:
-                        product = Product.query.get(id)
-                        products.append(product)
+                        prod_len = len(recommended)
+                    
+                    else:
+                        sold = Sold.query.order_by(Sold.quantity.desc()).all()
+                        products = []
+                        for i, sol in enumerate(sold):
+                            if i < minNumber and sol.quantity > 0:
+                                product = Product.query.get(sol.id)
+                                products.append(product)
 
-                    prod_len = len(recommended)
+                        prod_len = minNumber
                     
         if keyword:
             products = Product.query.filter(Product.productName.like('%'+keyword+'%')).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
