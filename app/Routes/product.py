@@ -287,7 +287,7 @@ def getproducts():
             quantityStatus = QuantityStatus.query.filter_by(product=product.id).first()
             sold = Sold.query.filter_by(product=product.id).first()
 
-            prod = product.to_dict(exclude='image')
+            prod = product.to_dict()
             prod['category'] = product.cat.name
             prod['gender'] = product.gen.name
             prod['quantity'] = quantityStatus.quantity
@@ -309,7 +309,7 @@ def displayproduct(id):
         quantityStatus = QuantityStatus.query.filter_by(product=product.id).first()
         sold = Sold.query.filter_by(product=product.id).first()
 
-        prod = product.to_dict(exclude='image')
+        prod = product.to_dict()
         prod['category'] = product.cat.name
         prod['gender'] = product.gen.name
         prod['quantity'] = quantityStatus.quantity

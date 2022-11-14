@@ -54,7 +54,7 @@ def shop():
         shop = Shop.query.filter_by(user=current_user.id).first()
 
         if shop:
-            data = shop.to_dict(exclude="image")
+            data = shop.to_dict()
 
             return Response(
                 status = 200,
@@ -77,7 +77,7 @@ def getShop():
     shop = Shop.query.get(shop_id)
     user = User.query.get(shop.user)
     products = Product.query.filter_by(shop=shop.id).all()
-    data = shop.to_dict(exclude="image")
+    data = shop.to_dict()
     data['seller'] = user.email
     data['products'] = len(products)
 

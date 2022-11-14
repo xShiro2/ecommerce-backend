@@ -22,7 +22,7 @@ def mypurchase():
             status = OrderStatus.query.get(order.status)
             shop = Shop.query.get(product.shop)
 
-            prod = product.to_dict(exclude=['image', 'description', 'shop', 'dateCreated', 'dateUpdated', 'id'])
+            prod = product.to_dict(exclude=['description', 'shop', 'dateCreated', 'dateUpdated'])
             prod['category'] = product.cat.name
             prod['gender'] = product.gen.name
             prod['quantity'] = order.quantity
@@ -33,7 +33,6 @@ def mypurchase():
             prod['address'] = order.address
             prod['dateCreated'] = order.dateCreated
             prod['orderID'] = order.id
-            prod['id'] = product.id
 
             products.append(prod)
 

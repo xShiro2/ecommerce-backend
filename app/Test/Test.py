@@ -49,7 +49,7 @@ def createProducts(id, num):
     genderList = Gender.query.all()
     
 
-    for i in range(1, num):
+    for i in range(0, num):
         gender = random.choice(genderList)
         category = random.choice(categoryList)
         image = getRandomImage()
@@ -92,14 +92,15 @@ def save_img(img_path):
     if not os.path.exists(IMAGE_FOLDER):
         os.makedirs(IMAGE_FOLDER)
 
-    path = IMAGE_FOLDER + "/" + str(uuid.uuid4()) + '.png'
+    name = str(uuid.uuid4())
+    path = IMAGE_FOLDER + "/" + name + '.png'
 
     im = Image.open(img_path)
     newHeight = int(WIDTH * im.height/im.width)
     im = im.resize((WIDTH, newHeight), resample=Image.LANCZOS)
     im.save(path, 'PNG')
 
-    return path
+    return name
 
 def start():
     user = createUser(
@@ -112,7 +113,7 @@ def start():
         ["Jeans", "T-Shirt", "Shorts", "Pants", "Polo", "Shoes", "Dress"]
     )
 
-    createProducts(user, 100)
+    createProducts(user, 10)
 
 
       

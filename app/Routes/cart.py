@@ -54,7 +54,7 @@ def cart():
                 product = Product.query.get(item.product)
                 shop = Shop.query.get(product.shop)
 
-                prod = product.to_dict(exclude=['image', 'description', 'shop', 'dateCreated', 'dateUpdated'])
+                prod = product.to_dict(exclude=['description', 'shop', 'dateCreated', 'dateUpdated'])
                 prod['category'] = product.cat.name
                 prod['gender'] = product.gen.name
                 prod['quantity'] = item.quantity

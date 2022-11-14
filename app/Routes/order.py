@@ -23,6 +23,7 @@ def orders():
             status = OrderStatus.query.get(order.status)
             product = Product.query.get(order.product)
             detail['id'] = order.id
+            detail['image'] = product.image
             detail['productID'] = product.id
             detail['productName'] = product.productName
             detail['price'] = product.price
