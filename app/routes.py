@@ -11,3 +11,4 @@ from app.Routes import image
 from app.Routes import checkout
 from app.Routes import mypurchase
 from app.Routes import reports
+from app.Routes import forecast
