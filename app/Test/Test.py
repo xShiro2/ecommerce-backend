@@ -70,7 +70,7 @@ def createProducts(id, num):
 
         quantityStatus = QuantityStatus(
             product=product.id,
-            quantity = 100,
+            quantity = 1000,
             status = True
         )
 
@@ -117,28 +117,29 @@ def purchaseProduct(id, perday, start, end):
     for date in dates:
         for i in range(perday):
             product = random.choice(products).id
-            quantity = random.randint(1, 500)
+            quantity = random.randint(1, 100)
             quantityStatus = QuantityStatus.query.filter_by(product=product).first()
 
-            order = Order(
-                user=id,
-                product=product,
-                quantity=quantity,
-                fullname=fullname,
-                number=num,
-                address=address,
-                status = 1,
-                dateCreated = date
-            )
+            if quantityStatus.quantity - quantity > 0:
+                order = Order(
+                    user=id,
+                    product=product,
+                    quantity=quantity,
+                    fullname=fullname,
+                    number=num,
+                    address=address,
+                    status = 1,
+                    dateCreated = date
+                )
 
-            order.create()
+                order.create()
 
-            quantityStatus.quantity -= quantity
-            quantityStatus.update()
+                quantityStatus.quantity -= quantity
+                quantityStatus.update()
 
-            sold = Sold.query.filter_by(product=product).first()
-            sold.quantity += quantity
-            sold.update()
+                sold = Sold.query.filter_by(product=product).first()
+                sold.quantity += quantity
+                sold.update()
 
     print('Done!!!')
 
@@ -158,7 +159,7 @@ def start():
         ["Jeans", "T-Shirt", "Shorts", "Pants", "Polo", "Shoes", "Dress"]
     )
 
-    createProducts(user, 10)
+    createProducts(user, 100)
 
     buyer = createUser(
         email="buyer@gmail.com",

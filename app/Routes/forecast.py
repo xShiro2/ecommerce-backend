@@ -63,10 +63,11 @@ def forecast():
         model = LinearRegression()
         model.fit(x, y)
 
-        pred_df = createPredictionData(start=end, index=len(df.index)-1, periods=1)
-        pred_x = pred_df.loc[:, ['Time']]
-        
+        pred_df = createPredictionData(start=end, index=len(df.index)-1, periods=2)
+        pred_x = pred_df.loc[1:, ['Time']]
+
         predicted = model.predict(pred_x)
+
         sales = []
         sales_arima = []
         for i, date in enumerate(df['Date']):
@@ -76,25 +77,25 @@ def forecast():
                 sales.append({'date': x, 'sales': y.loc[index][0], 'predicted': y.loc[index][0]})
             else:
                 sales.append({'date': x, 'sales': y.loc[index][0]})
-
-        pred_date = [date.strftime("%x") for date in pred_df['Date']]
-        predicted = {'predicted': predicted[0][0], 'date': pred_date[0]}
+        
+        pred_date = [date.strftime("%a") for date in pred_df['Date']]
+        predicted = {'predicted': predicted[0][0], 'date': pred_date[1]}
         sales.append(predicted)
 
         x = df['Sales']
         model = ARIMA(x, order=(0, 0, 1))
         model_fit = model.fit()
         predicted = model_fit.predict(len(x), len(x))
-        
+
         for i, date in enumerate(df['Date']):
             index = df['Date'].index.start + i
-            d = date.strftime("%x")
+            d = date.strftime("%a %d")
             if i == len(df['Date']) - 1:
-                sales_arima.append({'date': d, 'sales': x.loc[index], 'predicted': x.loc[index]})
+                sales_arima.append({'date': "Today", 'sales': x.loc[index], 'predicted': x.loc[index]})
             else:
                 sales_arima.append({'date': d, 'sales': x.loc[index]})
 
-        predicted = {'predicted': predicted.values[0], 'date': pred_date[0]}
+        predicted = {'predicted': predicted.values[0], 'date': "Tomorrow"}
         sales_arima.append(predicted)
 
         return Response(
