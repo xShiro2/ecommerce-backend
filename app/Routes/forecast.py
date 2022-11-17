@@ -8,8 +8,7 @@ import pandas as pd
 import random
 from sklearn.linear_model import LinearRegression
 import numpy as np
-from pmdarima.arima import auto_arima
-import pyaf.ForecastEngine as autof
+from statsmodels.tsa.arima.model import ARIMA
 
 @login_required
 @app.route('/api/v1/admin/forecast', methods=['GET'])
@@ -30,8 +29,8 @@ def forecast():
         #     converted_date = order.dateCreated.strftime('%x')
         #     data.append([converted_date, order.quantity])
 
-        start = '2021-01-01'
-        end = '2022-06-27'
+        start = '2022-11-14'
+        end = '2022-11-19'
         base = createBaseData(start, end)
         base_df = pd.DataFrame(base, columns=['Date', 'Sales'])
 
@@ -50,77 +49,98 @@ def forecast():
         model = LinearRegression()
         model.fit(x, y)
 
-        pred_df = createPredictionData(start=end, index=len(df.index)-1)
+        pred_df = createPredictionData(start=end, index=len(df.index)-1, periods=1)
         pred_x = pred_df.loc[:, ['Time']]
         
-        predicted = model.predict(x)
+        predicted = model.predict(pred_x)
 
         sales = []
         for i, date in enumerate(df['Date']):
             x = date.strftime("%x")
-            sales.append({'date': x, 'sales': y.loc[i][0], 'predicted': predicted[i][0]})
+            if i == len(df['Date']) - 1:
+                sales.append({'date': x, 'sales': y.loc[i][0], 'predicted': y.loc[i][0]})
+            else:
+                sales.append({'date': x, 'sales': y.loc[i][0]})
 
+        pred_date = [date.strftime("%x") for date in pred_df['Date']]
+        predicted = {'predicted': predicted[0][0], 'date': pred_date[0]}
+        sales.append(predicted)
+
+        x = df['Sales']
+        model = ARIMA(x, order=(0, 0, 1))
+        model_fit = model.fit()
+        predicted = model_fit.predict(len(x), len(x))
+        sales_arima = []
+        for i, date in enumerate(df['Date']):
+            d = date.strftime("%x")
+            if i == len(df['Date']) - 1:
+                sales_arima.append({'date': d, 'sales': x.loc[i], 'predicted': x.loc[i]})
+            else:
+                sales_arima.append({'date': d, 'sales': x.loc[i]})
+
+        predicted = {'predicted': predicted.values[0], 'date': pred_date[0]}
+        sales_arima.append(predicted)
+
+        return Response(
+            status=200,
+            data=[sales, sales_arima],
+        )
+
+@login_required
+@app.route('/api/v1/admin/forecast/arima', methods=['GET'])
+def forecast_arima():
+    if current_user.userType == 'Buyer':
+        return Response(
+            status=403,
+            message="error",
+        )
+
+    if request.method == 'GET':
+        shop = Shop.query.filter_by(user=current_user.id).first()
+        products = Product.query.filter_by(shop=shop.id).all()
+        orders = Order.query.order_by(Order.dateCreated.desc()).join(Product.query.filter_by(shop=shop.id)).all()
+
+        data=[]
+        # for order in orders:
+        #     converted_date = order.dateCreated.strftime('%x')
+        #     data.append([converted_date, order.quantity])
+
+        start = '2022-11-14'
+        end = '2022-11-19'
+        base = createBaseData(start, end)
+        base_df = pd.DataFrame(base, columns=['Date', 'Sales'])
+
+        data = createSampleData(start, len(base_df), 1000)
+        sales_df = pd.DataFrame(data, columns=['Date', 'Sales'])
+        
+        df = pd.concat([base_df, sales_df])
+        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+        df = df.groupby(df.Date.dt.date)['Sales'].mean()
+        df = pd.DataFrame({'Date': df.index, 'Sales': df.values})
+        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+
+        x = df['Sales']
+
+        model = ARIMA(x, order=(0, 0, 1))
+        model_fit = model.fit()
+        predicted = model_fit.predict(len(x), len(x)+1)
+
+        sales = []
+        for i, date in enumerate(df['Date']):
+            d = date.strftime("%x")
+            if i == len(df['Date']) - 1:
+                sales.append({'date': d, 'sales': x.loc[i], 'predicted': x.loc[i]})
+            else:
+                sales.append({'date': d, 'sales': x.loc[i]})
+        pred_df = createPredictionData(start=end, index=len(df.index)-1, periods=1)
+        pred_date = [date.strftime("%x") for date in pred_df['Date']]
+        predicted = {'predicted': predicted.values[0], 'date': pred_date[0]}
+        sales.append(predicted)
 
         return Response(
             status=200,
             data=sales,
         )
-
-# @login_required
-# @app.route('/api/v1/admin/forecast/arima', methods=['GET'])
-# def forecast_arima():
-#     if current_user.userType == 'Buyer':
-#         return Response(
-#             status=403,
-#             message="error",
-#         )
-
-#     if request.method == 'GET':
-#         shop = Shop.query.filter_by(user=current_user.id).first()
-#         products = Product.query.filter_by(shop=shop.id).all()
-#         orders = Order.query.order_by(Order.dateCreated.desc()).join(Product.query.filter_by(shop=shop.id)).all()
-
-#         data=[]
-#         # for order in orders:
-#         #     converted_date = order.dateCreated.strftime('%x')
-#         #     data.append([converted_date, order.quantity])
-
-#         start = '2021-01-01'
-#         end = '2022-06-27'
-#         base = createBaseData(start, end)
-#         base_df = pd.DataFrame(base, columns=['Date', 'Sales'])
-
-#         data = createSampleData(start, len(base_df), 1000)
-#         sales_df = pd.DataFrame(data, columns=['Date', 'Sales'])
-        
-#         df = pd.concat([base_df, sales_df])
-#         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-#         df = df.groupby(df.Date.dt.date)['Sales'].mean()
-#         df = pd.DataFrame({'Date': df.index, 'Sales': df.values})
-#         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-
-#         train = df[:len(df) - 5]
-#         test = df[len(df) - 5:]
-        
-#         horizon = len(test)
-
-#         lEngine = autof.cForecastEngine()
-#         # get the best time series model for test prediction
-#         lEngine.train(iInputDS = train, iTime = 'Date', iSignal = 'Sales', iHorizon = horizon)
-#         forecast = lEngine.forecast(test, horizon)
-#         print(test)
-#         print(forecast['Sales_Forecast_Lower_Bound'])
-#         print(forecast['Sales_Forecast_Upper_Bound'])
-
-#         # sales = []
-#         # for i, date in enumerate(df['Date']):
-#         #     x = date.strftime("%x")
-#         #     sales.append({'date': x, 'sales': y.loc[i][0], 'predicted': predicted[i][0]})
-
-
-#         return Response(
-#             status=200,
-#         )
 
 def createPredictionData(start, index, periods=50):
     dates = pd.date_range(start, periods=periods)
