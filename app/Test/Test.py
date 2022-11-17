@@ -10,6 +10,24 @@ from datetime import datetime
 DESCRIPTION = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 PATH = 'app/Test/Images'
 
+# default number of products to be created
+PRODUCTS_MAX = 100
+
+# default min/max product price
+PRICE_MIN = 100
+PRICE_MAX = 1000
+
+# default stock quantity
+QUANTITY = 1000
+
+# default order quantity per purchase
+ORDER_MIN = 1
+ORDER_MAX = 5
+
+# default range of dates for purchases
+START = '2022-1-1'
+END = datetime.now()
+
 def createUser(email, password, usertype):
     user = User(
         firstName = "First",
@@ -60,7 +78,7 @@ def createProducts(id, num):
             shop=shop.id,
             productName= f"Product {i}",
             description = DESCRIPTION,
-            price = random.randint(100, 10000),
+            price = random.randint(PRICE_MIN, PRICE_MAX),
             image = save_img(os.path.join(PATH, image)),
             gender=gender.id,
             category=category.id
@@ -70,7 +88,7 @@ def createProducts(id, num):
 
         quantityStatus = QuantityStatus(
             product=product.id,
-            quantity = 1000,
+            quantity = QUANTITY,
             status = True
         )
 
@@ -117,7 +135,7 @@ def purchaseProduct(id, perday, start, end):
     for date in dates:
         for i in range(perday):
             product = random.choice(products).id
-            quantity = random.randint(1, 100)
+            quantity = random.randint(ORDER_MIN, ORDER_MAX)
             quantityStatus = QuantityStatus.query.filter_by(product=product).first()
 
             if quantityStatus.quantity - quantity > 0:
@@ -159,7 +177,7 @@ def start():
         ["Jeans", "T-Shirt", "Shorts", "Pants", "Polo", "Shoes", "Dress"]
     )
 
-    createProducts(user, 100)
+    createProducts(user, PRODUCTS_MAX)
 
     buyer = createUser(
         email="buyer@gmail.com",
@@ -167,10 +185,7 @@ def start():
         usertype='Buyer'
     )
 
-    start = '2022-1-1'
-    end = datetime.now()
-
-    purchaseProduct(buyer, 1, start, end)
+    purchaseProduct(buyer, 1, START, END)
 
       
 
