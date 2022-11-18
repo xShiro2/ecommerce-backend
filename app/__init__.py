@@ -2,6 +2,9 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
+# set to True to create sample datas
+TEST = True
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkeeey'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/ecommerce_dev'
@@ -20,7 +23,9 @@ from app.Test import Test
 
 @app.before_first_request
 def create_tables():
-    db.drop_all()
+    if TEST:
+        db.drop_all()
+
     db.create_all()
     db.session.commit()
 
@@ -50,7 +55,8 @@ def create_tables():
             stat = models.OrderStatus(name=i)
             stat.create()
 
-    Test.start()
+    if TEST:
+        Test.start()
 
 @login_manager.user_loader
 def load_user(user_id):

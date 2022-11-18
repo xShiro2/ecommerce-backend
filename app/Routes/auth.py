@@ -29,6 +29,8 @@ def signup():
                     cart = Cart(user=user.id)
                     cart.create()
 
+                login_user(user, remember=True)
+                
                 return Response(
                     status=201,
                     message="sucess"
