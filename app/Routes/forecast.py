@@ -63,7 +63,7 @@ def forecast():
 
         # if data from database is less than 30
         # skip forecasting
-        if len(df) <= 30:
+        if len(df) < 30:
             data = []
             for i, date in enumerate(df['Date']):
                 index = df['Date'].index.start + i
