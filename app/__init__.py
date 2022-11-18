@@ -7,7 +7,7 @@ TEST = True
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkeeey'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost:3306/shoperty'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
