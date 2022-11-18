@@ -2,7 +2,6 @@
 
 ## Requirements
 1. Python
-2. MySQL
 
 ## Instruction
 1. Clone this repository:
@@ -19,8 +18,7 @@ venv/Scripts/activate
 ```
 pip install -r requirements.txt
 ```
-4. Create MySQL Database with name **shoperty**
-5. Run Flask App
+4. Run Flask App
 ```
 flask run
 ```
