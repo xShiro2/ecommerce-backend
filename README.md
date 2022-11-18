@@ -10,7 +10,11 @@
 git clone https://github.com/xShiro2/ecommerce-backend.git
 cd ecommerce-backend
 ```
-2. Create MySQL Database named ecommerce_dev
+2. Setup and activate virtual environment
+```
+python -m venv venv
+venv/Scripts/activate
+```
 3. Install required python dependencies
 ```
 pip install -r requirements.txt
