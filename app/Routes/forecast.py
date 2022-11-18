@@ -6,6 +6,7 @@ from app.models import Order, Shop, Product
 from datetime import datetime
 import pandas as pd 
 from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_squared_error
 
 @login_required
 @app.route('/api/v1/admin/forecast', methods=['GET'])
@@ -59,7 +60,7 @@ def forecast():
             s = len(df) - dates_len
             df = df.iloc[s:len(df)]
 
-        x = df['Sales']
+        y = df['Sales']
 
         # if data from database is less than 30
         # skip forecasting
@@ -69,9 +70,9 @@ def forecast():
                 index = df['Date'].index.start + i
                 d = date.strftime("%b %d")
                 if i == len(df['Date']) - 1:
-                    data.append({'date': "Today", 'sales': x.loc[index]})
+                    data.append({'date': "Today", 'sales': y.loc[index]})
                 else:
-                    data.append({'date': d, 'sales': x.loc[index]})
+                    data.append({'date': d, 'sales': y.loc[index]})
 
             return Response(
                 status=200,
@@ -79,9 +80,11 @@ def forecast():
             )
 
         # forecast using ARIMA 
-        model = ARIMA(x, order=(0, 0, 1))
+        model = ARIMA(y, order=(0, 0, 1))
         model_fit = model.fit()
-        predicted = model_fit.predict(len(x), len(x))
+        predicted = model_fit.predict(len(y), len(y))
+        y_pred = model_fit.predict(0, len(y)-1)
+        rmse = mean_squared_error(y_true=y, y_pred=y_pred, squared=False)
 
         # prepare response data
         sales = []
@@ -89,9 +92,9 @@ def forecast():
             index = df['Date'].index.start + i
             d = date.strftime("%b %d")
             if i == len(df['Date']) - 1:
-                sales.append({'date': "Today", 'sales': x.loc[index], 'predicted': x.loc[index]})
+                sales.append({'date': "Today", 'sales': y.loc[index], 'predicted': y.loc[index]})
             else:
-                sales.append({'date': d, 'sales': x.loc[index]})
+                sales.append({'date': d, 'sales': y.loc[index]})
 
         predicted = {'predicted': round(predicted.values[0], 2), 'date': "Tomorrow"}
         sales.append(predicted)
@@ -99,6 +102,7 @@ def forecast():
         return Response(
             status=200,
             data=sales,
+            message=rmse
         )
 
 # create datas with dates and 0 sales
