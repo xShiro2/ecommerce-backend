@@ -24,9 +24,10 @@ def reports():
 
         totalSales = 0
         for order in orders:
-            prod = Product.query.get(order.product)
-            totalSales += prod.price * order.quantity
-        
+            if order.status == OrderStatus.query.filter_by(name='COMPLETE').first().id:
+                prod = Product.query.get(order.product)
+                totalSales += prod.price * order.quantity
+            
         latestOrders = []
         for i, order in enumerate(orders):
             if i < 5:
@@ -39,11 +40,12 @@ def reports():
 
         sales = [{'date': date, 'sales': 0} for date in DATES]
         for order in orders:
-            date = order.dateCreated.strftime('%b')
-            price = Product.query.get(order.product).price * order.quantity
-            for sale in sales:
-                if sale['date'] == date:
-                    sale['sales'] += price
+            if order.status == OrderStatus.query.filter_by(name='COMPLETE').first().id:
+                date = order.dateCreated.strftime('%b')
+                price = Product.query.get(order.product).price * order.quantity
+                for sale in sales:
+                    if sale['date'] == date:
+                        sale['sales'] += price
 
         topSelling = []
         for i, sold in enumerate(solds):

@@ -2,7 +2,7 @@ from app import app
 from flask_login import login_required, current_user
 from flask import request
 from app.Components.response import Response
-from app.models import Order, Shop, Product
+from app.models import Order, Shop, Product, OrderStatus
 from datetime import datetime
 import pandas as pd 
 from statsmodels.tsa.arima.model import ARIMA
@@ -25,9 +25,15 @@ def forecast():
         # get sales
         data=[]
         for order in orders:
-            product = Product.query.get(order.product)
-            converted_date = order.dateCreated.strftime('%x')
-            data.append([converted_date, order.quantity * product.price])
+            if order.status == OrderStatus.query.filter_by(name='COMPLETE').first().id:
+                product = Product.query.get(order.product)
+                converted_date = order.dateCreated.strftime('%x')
+                data.append([converted_date, order.quantity * product.price])
+
+        if not data:
+            return Response(
+                status=200,
+            )
 
         # get start and end dates
         start = data[-1][0]

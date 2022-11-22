@@ -139,6 +139,7 @@ def purchaseProduct(id, perday, start, end):
             quantityStatus = QuantityStatus.query.filter_by(product=product).first()
 
             if quantityStatus.quantity - quantity > 0:
+                status = OrderStatus.query.filter_by(name='COMPLETE').first()
                 order = Order(
                     user=id,
                     product=product,
@@ -146,7 +147,7 @@ def purchaseProduct(id, perday, start, end):
                     fullname=fullname,
                     number=num,
                     address=address,
-                    status = 1,
+                    status = status.id,
                     dateCreated = date
                 )
 

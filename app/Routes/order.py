@@ -2,7 +2,7 @@ from app import app, db
 from flask_login import login_required, current_user
 from flask import request
 from app.Components.response import Response
-from app.models import Order, Shop, Product, OrderStatus
+from app.models import Order, Shop, Product, OrderStatus, QuantityStatus, Sold
 
 @app.route('/api/v1/admin/orders', methods=['GET'])
 @login_required
@@ -48,6 +48,24 @@ def orderStatus():
         status = OrderStatus.query.filter_by(name=data['status']).first()
         order.status = status.id
         order.update()
+
+        if data['status'] == 'PREPARING':
+            quantityStatus = QuantityStatus.query.filter_by(product=order.product).first()
+            quantityStatus.quantity -= order.quantity
+            quantityStatus.update()
+
+            sold = Sold.query.filter_by(product=order.product).first()
+            sold.quantity += order.quantity
+            sold.update()
+
+        if data['status'] == 'CANCELLED':
+            quantityStatus = QuantityStatus.query.filter_by(product=order.product).first()
+            quantityStatus.quantity += order.quantity
+            quantityStatus.update()
+
+            sold = Sold.query.filter_by(product=order.product).first()
+            sold.quantity -= order.quantity
+            sold.update()
 
         return Response(
             status=200
