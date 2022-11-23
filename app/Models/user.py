@@ -13,6 +13,7 @@ class User(UserMixin, db.Model, model.Component):
     email = db.Column(db.String(64), nullable=False)
     password = db.Column(db.String(128), nullable=False)
     address = db.Column(db.String(64), nullable=False)
+    number = db.Column(db.Integer, nullable=False)
     age = db.Column(db.Integer, nullable=False)
     gender = db.Column(db.String(6), nullable=False)
     userType = db.Column(db.String(6), nullable=False)

@@ -9,6 +9,7 @@ from datetime import datetime
 
 DESCRIPTION = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 PATH = 'app/Test/Images'
+IMAGE_FOLDER = 'IMAGE_FOLDER'
 
 # default number of products to be created
 PRODUCTS_MAX = 100
@@ -30,11 +31,12 @@ END = datetime.now()
 
 def createUser(email, password, usertype):
     user = User(
-        firstName = "First",
-        lastName = "Last",
+        firstName = "Lorem",
+        lastName = "Ipsum",
         email = email,
         password = generate_password_hash(password),
-        address = "Test",
+        address = "Lorem Ipsum, Iloilo",
+        number = 639123456789,
         age = 1,
         gender = 1,
         userType = usertype,
@@ -106,7 +108,6 @@ def getRandomImage():
     return random.choice(images)
 
 def save_img(img_path):
-    IMAGE_FOLDER = 'IMAGE_FOLDER'
     WIDTH = 800
 
     if not os.path.exists(IMAGE_FOLDER):
@@ -168,6 +169,10 @@ def createDates(start, end):
     return dates
 
 def start():
+    if os.path.exists(IMAGE_FOLDER):
+        for f in os.listdir(IMAGE_FOLDER):
+            os.remove(f)
+
     user = createUser(
         email="test@gmail.com",
         password="test",

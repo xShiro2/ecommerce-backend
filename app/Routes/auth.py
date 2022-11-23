@@ -17,6 +17,7 @@ def signup():
                 email = user['email'],
                 password = generate_password_hash(user['password']),
                 address = user['address'],
+                number = user['number'],
                 age = user['age'],
                 gender = user['gender'],
                 userType = user['userType'],
