@@ -169,9 +169,10 @@ def createDates(start, end):
     return dates
 
 def start():
+    # clean image folder
     if os.path.exists(IMAGE_FOLDER):
         for f in os.listdir(IMAGE_FOLDER):
-            os.remove(f)
+            os.remove(os.path.join(IMAGE_FOLDER,f))
 
     user = createUser(
         email="test@gmail.com",
