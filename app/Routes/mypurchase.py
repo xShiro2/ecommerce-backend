@@ -27,12 +27,13 @@ def mypurchase():
             prod['gender'] = product.gen.name
             prod['quantity'] = order.quantity
             prod['shop'] = shop.shopName
-            prod['status'] = status.name
+            prod['status'] = {'id': status.id, 'name': status.name}
             prod['fullname'] = order.fullname
             prod['number'] = order.number
             prod['address'] = order.address
             prod['dateCreated'] = order.dateCreated
             prod['orderID'] = order.id
+            prod['total'] = order.quantity * product.price
 
             products.append(prod)
 
