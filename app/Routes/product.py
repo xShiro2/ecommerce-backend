@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from app.Components.response import Response
 from app.Components.image_handler import save_img, delete_img
 from app.recommender import get_recommendations
-
+from sqlalchemy import and_
 
 # ADMIN SIDE ROUTES
 @app.route('/api/v1/admin/product', methods=['POST', 'GET'])
@@ -275,8 +275,32 @@ def getproducts():
                         prod_len = minNumber
                     
         if keyword:
-            products = Product.query.filter(Product.productName.like('%'+keyword+'%')).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
-            prod_len = len(Product.query.filter(Product.productName.like('%'+keyword+'%')).all())
+            if prod_filter:
+                gender = []
+                if prod_filter == 'men':
+                    gender = Gender.query.filter_by(name='Male').first()
+                if prod_filter == 'women':
+                    gender = Gender.query.filter_by(name='Female').first()
+                if prod_filter == 'kids':
+                    gender = Gender.query.filter_by(name='Kids').first()
+                
+                if gender:
+                    products = Product.query.filter(Product.productName.like('%'+keyword+'%')).filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
+                    prod_len = len(Product.query.filter(Product.productName.like('%'+keyword+'%')).all())
+                
+                if prod_filter == 'best':
+                    sold = Sold.query.order_by(Sold.quantity.desc()).join(Product.query.filter(Product.productName.like('%'+keyword+'%'))).all()
+                    products = []
+                    for i, sol in enumerate(sold):
+                        if i < minNumber and sol.quantity > 0:
+                            product = Product.query.get(sol.id)
+                            products.append(product)
+
+                    prod_len = minNumber
+
+            else:        
+                products = Product.query.filter(Product.productName.like('%'+keyword+'%')).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
+                prod_len = len(Product.query.filter(Product.productName.like('%'+keyword+'%')).all())
 
         if shop:
             products = Product.query.filter_by(shop=shop).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
