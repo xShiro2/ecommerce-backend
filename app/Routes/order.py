@@ -31,7 +31,7 @@ def orders():
             detail['totalprice'] = order.quantity * product.price
             detail['dateCreated'] = order.dateCreated
             detail['buyer'] = {"fullname": order.fullname, "number": order.number, "address": order.address}
-            detail['status'] = status.name
+            detail['status'] = {"name": status.name, 'id': status.id}
             data.append(detail)
 
         return Response(

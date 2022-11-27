@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
 # set to True to create sample datas
-TEST = True
+TEST = False
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkeeey'
