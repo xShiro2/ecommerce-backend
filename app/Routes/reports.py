@@ -49,7 +49,7 @@ def reports():
 
         topSelling = []
         for i, sold in enumerate(solds):
-            if i < 5 and sold.quantity > 0:
+            if i < 10 and sold.quantity > 0:
                 product = Product.query.get(sold.product)
                 detail = product.to_dict()
                 detail['quantity'] = sold.quantity
