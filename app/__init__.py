@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
 # set to True to create sample datas
-TEST = False
+TEST = True
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkeeey'
@@ -23,7 +23,15 @@ from app.Test import Test
 
 @app.before_first_request
 def create_tables():
-    if TEST:
+    isEmpty = True
+
+    try: 
+        users = models.User.query.first()
+        isEmpty = False
+    except:
+        isEmpty = True
+
+    if TEST and isEmpty:
         db.drop_all()
 
     db.create_all()
@@ -33,7 +41,7 @@ def create_tables():
     gender = [
         "Male",
         "Female",
-        "Kids",
+        "Unisex",
     ]
 
     # create order status list
@@ -55,7 +63,7 @@ def create_tables():
             stat = models.OrderStatus(name=i)
             stat.create()
 
-    if TEST:
+    if TEST and isEmpty:
         Test.start()
 
 @login_manager.user_loader

@@ -180,8 +180,8 @@ def getproducts():
                 gender = Gender.query.filter_by(name='Male').first()
             if prod_filter == 'women':
                 gender = Gender.query.filter_by(name='Female').first()
-            if prod_filter == 'kids':
-                gender = Gender.query.filter_by(name='Kids').first()
+            if prod_filter == 'unisex':
+                gender = Gender.query.filter_by(name='Unisex').first()
                 
             if gender:
                 products = Product.query.filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
@@ -281,8 +281,8 @@ def getproducts():
                     gender = Gender.query.filter_by(name='Male').first()
                 if prod_filter == 'women':
                     gender = Gender.query.filter_by(name='Female').first()
-                if prod_filter == 'kids':
-                    gender = Gender.query.filter_by(name='Kids').first()
+                if prod_filter == 'unisex':
+                    gender = Gender.query.filter_by(name='Unisex').first()
                 
                 if gender:
                     products = Product.query.filter(Product.productName.like('%'+keyword+'%')).filter_by(gender=gender.id).join(QuantityStatus.query.filter_by(status=True)).paginate(page=page, per_page=minNumber)
